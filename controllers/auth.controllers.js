@@ -44,5 +44,29 @@ export const login = asyncHandler(async (req, res) => {
 
 // register controller
 export const register = asyncHandler(async (req, res) => {
-   res.status(StatusCodes.OK).json({ msg: "success" });
+   const { name, email, password, confirmPassword } = req.body;
+
+   // compare password
+   if (password !== confirmPassword)
+      throw new BadRequestError('Passwords do not match');
+
+   // check if user exists
+   const user = await User.findOne({ email });
+   if (user) throw new BadRequestError('User already exists');
+
+   // create new user
+   const newUser = await new User({
+      name,
+      email,
+      hashPassword: bcrypt.hashSync(password, 14),
+   }).save();
+
+   newUser.hashPassword = undefined;
+
+   logger.info(`User ${newUser.email} created`);
+
+   res.status(StatusCodes.CREATED).json({
+      message: 'User created successfully',
+      newUser,
+   });
 });
