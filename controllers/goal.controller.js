@@ -22,5 +22,22 @@ export const createGoal = asyncHandler(async (req, res) => {
         createdOn: new Date
     });
 
-    res.status(StatusCodes.OK).json(goal);
+    res.status(StatusCodes.CREATED).json({
+        message: 'Goal created successfully',
+        goal,
+    });
 });
+
+// Delete a goal controller
+export const deleteGoal = asyncHandler(async (req, res) => {
+    const goalId = req.params.goal;
+
+    const goal = await Goal.findById(goalId);
+    if (!goal) throw new BadRequestError('Goal does not exist');
+
+    await Goal.findByIdAndRemove(goalId);
+
+    res.status(StatusCodes.OK).json({
+        message: 'Goal deleted successfully'
+    })
+})

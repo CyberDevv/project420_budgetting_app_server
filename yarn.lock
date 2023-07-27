@@ -2281,7 +2281,7 @@
     "@types/whatwg-url" "^8.2.1"
     "whatwg-url" "^11.0.0"
 
-"mongodb@5.7.0":
+"mongodb@^5.7.0", "mongodb@5.7.0":
   "integrity" "sha512-zm82Bq33QbqtxDf58fLWBwTjARK3NSvKYjyz997KSy6hpat0prjeX/kxjbPVyZY60XYPDNETaHkHJI2UCzSLuw=="
   "resolved" "https://registry.npmjs.org/mongodb/-/mongodb-5.7.0.tgz"
   "version" "5.7.0"
