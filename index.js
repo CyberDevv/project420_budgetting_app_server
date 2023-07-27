@@ -16,6 +16,7 @@ import {
 } from './middleware';
 import authRoutes from './routes/auth.routes';
 import expenseRoutes from './routes/expense.routes';
+import balanceRoutes from './routes/balance.routes';
 
 dotenv.config();
 const app = express();
@@ -39,6 +40,7 @@ app.get('/ping', (req, res) => {
 });
 app.use('/auth', authRoutes);
 app.use('/api/v1/expenses', loginRequired, expenseRoutes);
+app.use('/api/v1/balance', loginRequired, balanceRoutes);
 app.use(error404);
 
 // error handler
