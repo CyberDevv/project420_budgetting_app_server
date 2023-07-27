@@ -2,7 +2,11 @@ import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema({
-   name: {
+   firstName: {
+      type: String,
+      required: 'Name is required',
+   },
+   lastName: {
       type: String,
       required: 'Name is required',
    },
@@ -10,10 +14,18 @@ const UserSchema = new mongoose.Schema({
       type: String,
       required: 'Email is required',
       unique: true,
+      match: [
+         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+         'Please provide a valid email',
+      ],
    },
    hashPassword: {
       type: String,
       required: 'Password is required',
+   },
+   balance: {
+      type: Number,
+      default: 0,
    },
    createdOn: {
       type: Date,

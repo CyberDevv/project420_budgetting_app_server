@@ -31,7 +31,6 @@ export const login = asyncHandler(async (req, res) => {
       token: jwt.sign(
          {
             email: user.email,
-            name: user.name,
             _id: user.id,
          },
          process.env.JWT_SECRET,
@@ -39,12 +38,15 @@ export const login = asyncHandler(async (req, res) => {
             expiresIn: '30d',
          }
       ),
+      userEmail: user.email,
+      userFirstName: user.firstName,
+      userLastName: user.lastName,
    });
 });
 
 // register controller
 export const register = asyncHandler(async (req, res) => {
-   const { name, email, password, confirmPassword } = req.body;
+   const { firstName, lastName, email, password, confirmPassword } = req.body;
 
    // compare password
    if (password !== confirmPassword)
@@ -56,12 +58,14 @@ export const register = asyncHandler(async (req, res) => {
 
    // create new user
    const newUser = await new User({
-      name,
+      firstName,
+      lastName,
       email,
       hashPassword: bcrypt.hashSync(password, 14),
    }).save();
 
    newUser.hashPassword = undefined;
+   newUser.__v = undefined;
 
    logger.info(`User ${newUser.email} created`);
 
