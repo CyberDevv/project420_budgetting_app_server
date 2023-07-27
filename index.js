@@ -8,9 +8,15 @@ import { error404 } from './controllers/error404.controller';
 import connectDB from './utils/dbConnect';
 import logger from './utils/winston';
 import('express-async-errors');
-import { errorHandlerMiddleware } from './middleware';
+import {
+   errorHandlerMiddleware,
+   loginRequired,
+   requestLogger,
+   verifyJwt,
+} from './middleware';
 import authRoutes from './routes/auth.routes';
-import expenseRoutes from './routes/expense.routes'
+import expenseRoutes from './routes/expense.routes';
+import balanceRoutes from './routes/balance.routes';
 
 dotenv.config();
 const app = express();
@@ -23,13 +29,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // jwt setup
+app.use(verifyJwt);
+
+// logger middleware
+app.use(requestLogger);
 
 // routes
 app.get('/ping', (req, res) => {
    res.status(200).json({ sucess: true });
 });
 app.use('/auth', authRoutes);
-app.use('/api/v1/expenses', expenseRoutes);
+app.use('/api/v1/expenses', loginRequired, expenseRoutes);
+app.use('/api/v1/balance', loginRequired, balanceRoutes);
 app.use(error404);
 
 // error handler

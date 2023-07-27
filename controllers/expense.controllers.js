@@ -6,10 +6,9 @@ import logger from '../utils/winston';
 
 // Get all expenses controller
 export const getAllExpenses = asyncHandler(async (req, res) => {
-    const expenses = await Expense.find({ user: req.user._id }).sort({
-        date: -1,
-    });
-  
-    res.status(StatusCodes.OK).json(expenses);
-  }
-);
+   const expenses = await Expense.find({ user: req.user._id }).sort({
+      date: -1,
+   });
+
+   res.status(StatusCodes.OK).json(expenses);
+});
