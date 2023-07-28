@@ -13,7 +13,10 @@ const GoalSchema = new mongoose.Schema({
       type: Date,
       required: 'Target date is required',
    },
-   description: String,
+   description: {
+      type: String,
+      required: 'Description is required'
+   },
    createdOn: {
       type: Date,
       default: Date.now,
