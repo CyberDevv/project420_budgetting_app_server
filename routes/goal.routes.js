@@ -3,7 +3,8 @@ import { getAllGoals, createGoal, deleteGoal } from '../controllers/goal.control
 
 const router = express.Router();
 
-router.route('/').get(getAllGoals).post(createGoal);
-router.route('/:id').get(getAllGoals).delete(createGoal);
+router.get('/goals', getAllGoals);
+router.post('/create-goal', createGoal);
+router.delete('/delete/:goal', deleteGoal);
 
 export default router;

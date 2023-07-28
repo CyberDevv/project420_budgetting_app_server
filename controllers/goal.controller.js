@@ -14,13 +14,15 @@ export const getAllGoals = asyncHandler(async (req, res) => {
 // Set a goal controller
 export const createGoal = asyncHandler(async (req, res) => {
     const { goalAmount, targetDate, description } = req.body;
-    const goal = new Goal ({
+
+    // create a new goal
+    const goal = await new Goal ({
         user: req.user._id,
         goalAmount: goalAmount,
         targetDate: targetDate,
         description: description,
         createdOn: new Date
-    });
+    }).save();
 
     res.status(StatusCodes.CREATED).json({
         message: 'Goal created successfully',
