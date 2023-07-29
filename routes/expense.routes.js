@@ -1,7 +1,7 @@
 import express from 'express';
 import {
-   getAllExpenses,
    addExpense,
+   getAllExpenses,
    getExpense,
    getExpensesAmount,
 } from '../controllers/expense.controllers';
