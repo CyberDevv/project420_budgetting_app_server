@@ -4,11 +4,11 @@ import { BadRequestError, UnauthenticatedError } from '../errors';
 import Budget from '../models/budget.model';
 import logger from '../utils/winston';
 
-// Get all goals controller
-export const getAllGoals = asyncHandler(async (req, res) => {
-   const goal = await Goal.find({ user: req.user._id });
+// Get all budget controller
+export const getAllBudgets = asyncHandler(async (req, res) => {
+   const budgets = await Budget.find({ user: req.user._id }, { __v: 0 });
 
-   res.status(StatusCodes.OK).json(goal);
+   res.status(StatusCodes.OK).json(budgets);
 });
 
 // create budget controller
@@ -23,22 +23,38 @@ export const createBudget = asyncHandler(async (req, res) => {
       description,
    }).save();
 
+   logger.info(`User ${req.user.email} added a new budget`);
+
    res.status(StatusCodes.CREATED).json({
       message: 'Budget created successfully',
       budget,
    });
 });
 
-// Delete a goal controller
-export const deleteGoal = asyncHandler(async (req, res) => {
-   const goalId = req.params.goal;
+// update budget controller
+export const spendBudget = asyncHandler(async (req, res) => {
+   const { debitAmount } = req.body;
 
-   const goal = await Goal.findById(goalId);
-   if (!goal) throw new BadRequestError('Goal does not exist');
+   // check if debitAmount is greater than budgetAmount from the db
+   const budgetFromDb = await Budget.findById(req.params.budgetId);
+   if (debitAmount > budgetFromDb.budgetAmount) {
+      throw new BadRequestError(
+         'Debit amount cannot be greater than budget amount'
+      );
+   }
 
-   await Goal.findByIdAndRemove(goalId);
+   // update budget
+    await Budget.findByIdAndUpdate(req.params.budgetId, {
+       spentAmount: budgetFromDb.budgetAmount - debitAmount,
+    });
+
+   if (!budgetFromDb) {
+      throw new BadRequestError('Budget not found');
+   }
+
+   logger.info(`User ${req.user.email} spent from budget`);
 
    res.status(StatusCodes.OK).json({
-      message: 'Goal deleted successfully',
+      message: 'Budget updated successfully',
    });
 });

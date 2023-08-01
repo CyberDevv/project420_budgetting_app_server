@@ -1,8 +1,9 @@
 import express from 'express';
-import { createBudget } from '../controllers/budget.controller';
+import { createBudget, getAllBudgets, spendBudget } from '../controllers/budget.controller';
 
 const router = express.Router();
 
-router.route('/').post(createBudget);
+router.route('/').post(createBudget).get(getAllBudgets);
+router.route('/:budgetId/spend').patch(spendBudget)
 
 export default router;

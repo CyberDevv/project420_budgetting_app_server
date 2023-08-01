@@ -9,6 +9,10 @@ const BudgetSchema = new mongoose.Schema({
       type: Number,
       required: 'Amount is required',
    },
+   spentAmount: {
+      type: Number,
+      default: 0,
+   },
    category: {
       type: String,
       required: 'Category is required',
