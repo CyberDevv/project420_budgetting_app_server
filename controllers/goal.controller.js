@@ -2,44 +2,85 @@ import asyncHandler from 'express-async-handler';
 import { StatusCodes } from 'http-status-codes';
 import { BadRequestError, UnauthenticatedError } from '../errors';
 import Goal from '../models/goal.model';
+import User from '../models/user.model';
 import logger from '../utils/winston';
 
 // Get all goals controller
 export const getAllGoals = asyncHandler(async (req, res) => {
-    const goal = await Goal.find({ user: req.user._id });
+   const goal = await Goal.find({ user: req.user._id });
 
-    res.status(StatusCodes.OK).json(goal);
+   res.status(StatusCodes.OK).json(goal);
 });
 
 // Set a goal controller
 export const createGoal = asyncHandler(async (req, res) => {
-    const { goalAmount, targetDate, description } = req.body;
+   const { goalAmount, targetDate, description, creditAmount } = req.body;
 
-    // create a new goal
-    const goal = await new Goal ({
-        user: req.user._id,
-        goalAmount: goalAmount,
-        targetDate: targetDate,
-        description: description,
-        createdOn: new Date
-    }).save();
+   // create a new goal
+   const goal = await new Goal({
+      user: req.user._id,
+      goalAmount: goalAmount,
+      targetDate: targetDate,
+      description: description,
+      savedAmount: +creditAmount,
+   }).save();
 
-    res.status(StatusCodes.CREATED).json({
-        message: 'Goal created successfully',
-        goal,
-    });
+   //    debit user balance
+   const user = await User.findById(req.user._id);
+   user.balance -= Number(creditAmount);
+   user.save();
+
+   res.status(StatusCodes.CREATED).json({
+      message: 'Goal created successfully',
+      goal,
+   });
 });
 
 // Delete a goal controller
 export const deleteGoal = asyncHandler(async (req, res) => {
-    const goalId = req.params.goal;
+   const goalId = req.params.goal;
 
-    const goal = await Goal.findById(goalId);
-    if (!goal) throw new BadRequestError('Goal does not exist');
+   const goal = await Goal.findById(goalId);
+   if (!goal) throw new BadRequestError('Goal does not exist');
 
-    await Goal.findByIdAndRemove(goalId);
+   await Goal.findByIdAndRemove(goalId);
 
-    res.status(StatusCodes.OK).json({
-        message: 'Goal deleted successfully'
-    })
-})
+   res.status(StatusCodes.OK).json({
+      message: 'Goal deleted successfully',
+   });
+});
+
+// addsavings controller
+export const addSavings = asyncHandler(async (req, res) => {
+   const { amount } = req.body;
+
+   const goal = await Goal.findById(req.params.goalId);
+   if (!goal) throw new BadRequestError('Goal does not exist');
+
+   if (goal.user.toString() !== req.user._id.toString()) {
+      throw new UnauthenticatedError(
+         'You are not authorized to perform this action'
+      );
+   }
+
+   if (Number(goal.savedAmount) + Number(amount) > Number(goal.goalAmount)) {
+      throw new BadRequestError('You cannot save more than your target amount');
+   }
+
+   goal.savedAmount += Number(amount);
+   await goal.save();
+
+   //    debit user balance
+   const user = await User.findById(req.user._id);
+   user.balance -= Number(amount);
+   user.save();
+
+   logger.info(
+      `User ${req.user._id} debited with ${amount} for savings to goal ${goal._id}`
+   );
+
+   res.status(StatusCodes.OK).json({
+      message: 'Savings added successfully',
+      goal,
+   });
+});
