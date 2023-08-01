@@ -5,7 +5,8 @@
    "license": "ISC",
    "scripts": {
       "dev": "nodemon ./index.js --exec babel-node -e js",
-      "start": "babel-node ./index.js"
+      "start": "babel-node ./index.js",
+      "start:pm2": "pm2 start npm -- run start"
    },
    "devDependencies": {
       "nodemon": "^3.0.1"
