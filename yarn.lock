@@ -1479,6 +1479,11 @@
     "snapdragon" "^0.8.1"
     "to-regex" "^3.0.1"
 
+"faker@^5.5.3":
+  "integrity" "sha512-wLTv2a28wjUyWkbnX7u/ABZBkUkIF2fCd73V6P2oFqEGEktDfzWx4UxrSqtPRw0xPRAcjeAOIiJWqZm3pP4u3g=="
+  "resolved" "https://registry.npmjs.org/faker/-/faker-5.5.3.tgz"
+  "version" "5.5.3"
+
 "fecha@^4.2.0":
   "integrity" "sha512-OP2IUU6HeYKJi3i0z4A19kHMQoLVs4Hc+DPqqxI2h/DPZHTm/vjsfC6P0b4jCMy14XizLBqvndQ+UilD7707Jw=="
   "resolved" "https://registry.npmjs.org/fecha/-/fecha-4.2.3.tgz"

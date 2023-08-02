@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { StatusCodes } from 'http-status-codes';
 import { BadRequestError, UnauthenticatedError } from '../errors';
+import expenseModel from '../models/expense.model';
 
 export const generateExpenseReport = asyncHandler(async (req, res) => {
     const { startDate, endDate } = req.body;
@@ -9,9 +10,7 @@ export const generateExpenseReport = asyncHandler(async (req, res) => {
 
     if (endDate < startDate) throw new BadRequestError('endDate cannot be earlier than startDate');
 
-    const collection = db.collection('expense');
-
-    const filteredData = await collection.find({ date: { $gte: startDate, $lte: endDate } }).toArray();
+    const filteredData = await expenseModel.find({ date: { $gte: startDate, $lte: endDate } }).exec();
 
     const report = { startDate, endDate, data: filteredData };
 
