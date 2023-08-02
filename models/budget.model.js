@@ -17,7 +17,6 @@ const BudgetSchema = new mongoose.Schema({
       type: String,
       required: 'Category is required',
    },
-   description: String,
    createdOn: {
       type: Date,
       default: Date.now,
