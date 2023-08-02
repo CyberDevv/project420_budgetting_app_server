@@ -1,30 +1,27 @@
 import mongoose from 'mongoose';
 
-const GoalSchema = new mongoose.Schema({
+const BudgetSchema = new mongoose.Schema({
    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
    },
-   goalAmount: {
+   budgetAmount: {
       type: Number,
       required: 'Amount is required',
    },
-   savedAmount: {
+   spentAmount: {
       type: Number,
       default: 0,
    },
-   targetDate: {
-      type: Date,
-      required: 'Target date is required',
-   },
-   description: {
+   category: {
       type: String,
-      required: 'Description is required',
+      required: 'Category is required',
    },
+   description: String,
    createdOn: {
       type: Date,
       default: Date.now,
    },
 });
 
-export default mongoose.model('Goal', GoalSchema);
+export default mongoose.model('Budget', BudgetSchema);

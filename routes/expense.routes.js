@@ -1,8 +1,15 @@
 import express from 'express';
-import { getAllExpenses, addExpense } from '../controllers/expense.controllers';
+import {
+   addExpense,
+   getAllExpenses,
+   getExpense,
+   getExpensesAmount,
+} from '../controllers/expense.controllers';
 
 const router = express.Router();
 
 router.route('/').get(getAllExpenses).post(addExpense);
+router.route('/getExpensesAmount').get(getExpensesAmount);
+router.route('/:expenseId').get(getExpense);
 
 export default router;

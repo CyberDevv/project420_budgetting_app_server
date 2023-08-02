@@ -18,7 +18,6 @@ import authRoutes from './routes/auth.routes';
 import expenseRoutes from './routes/expense.routes';
 import balanceRoutes from './routes/balance.routes';
 import goalRoutes from './routes/goal.routes';
-import reportRoutes from './routes/report.routes';
 
 dotenv.config();
 const app = express();
@@ -44,8 +43,6 @@ app.use('/auth', authRoutes);
 app.use('/api/v1/expenses', loginRequired, expenseRoutes);
 app.use('/api/v1/balance', loginRequired, balanceRoutes);
 app.use('/api/v1/goal', loginRequired, goalRoutes);
-app.use('/api/v1/report', loginRequired, reportRoutes); 
-
 app.use(error404);
 
 // error handler

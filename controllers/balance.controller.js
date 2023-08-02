@@ -21,10 +21,14 @@ export const setBalance = asyncHandler(async (req, res) => {
    // check if amount is negative
    if (amount < 0) throw new BadRequestError('Amount must be positive');
 
+   // get user current balance
+   const userBalance = await User.findById(req.user._id)
+   const newBalance = Number(userBalance.balance) + Number(amount);
+   
    // update user balance
    const user = await User.findByIdAndUpdate(
       req.user._id,
-      { balance: amount },
+      { balance: newBalance },
       { new: true }
    );
 
@@ -32,5 +36,6 @@ export const setBalance = asyncHandler(async (req, res) => {
 
    res.status(StatusCodes.OK).json({
       "msg": 'User balance updated successfully',
+      "balance": user.balance
    });
 });
