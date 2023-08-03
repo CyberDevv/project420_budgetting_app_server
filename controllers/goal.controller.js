@@ -49,6 +49,7 @@ export const createGoal = asyncHandler(async (req, res) => {
          date: moment().toISOString(),
          summaryStatistics: {
             transactionId: goal._id,
+            category: goal.description,
             amount: creditAmount,
             type: 'debit',
          },
@@ -107,6 +108,7 @@ export const addSavings = asyncHandler(async (req, res) => {
       date: moment().toISOString(),
       summaryStatistics: {
          transactionId: goal._id,
+         category: goal.description,
          amount: amount,
          type: 'debit',
       },
