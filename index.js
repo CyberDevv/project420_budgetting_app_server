@@ -20,6 +20,7 @@ import balanceRoutes from './routes/balance.routes';
 import budgetRoutes from './routes/budget.route';
 import goalRoutes from './routes/goal.routes';
 import reportRoutes from './routes/report.routes';
+import ChartRoutes from './routes/chart.routes';
 
 dotenv.config();
 const app = express();
@@ -47,6 +48,7 @@ app.use('/api/v1/budget', loginRequired, budgetRoutes);
 app.use('/api/v1/balance', loginRequired, balanceRoutes);
 app.use('/api/v1/goal', loginRequired, goalRoutes);
 app.use('/api/v1/report', loginRequired, reportRoutes);
+app.use('/api/v1/chart', loginRequired, ChartRoutes);
 app.use(error404);
 
 // error handler
