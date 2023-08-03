@@ -4,18 +4,21 @@ const ReportSchema = new mongoose.Schema({
    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+      required: true,
    },
    reportType: {
       type: String,
-      enum: ['monthly', 'quarterly', 'yearly'],
       required: true,
    },
-   dateRange: { type: String },
-   summaryStatistics: { type: Object },
-   createdOn: {
-      type: Date,
-      default: Date.now,
+   date: {
+      type: String,
+      required: true,
+   },
+   summaryStatistics: {
+      type: Object,
+      required: true,
    },
 });
+
 
 export default mongoose.model('Report', ReportSchema);

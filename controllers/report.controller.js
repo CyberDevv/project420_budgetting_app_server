@@ -1,21 +1,40 @@
 import asyncHandler from 'express-async-handler';
 import { StatusCodes } from 'http-status-codes';
 import { BadRequestError, UnauthenticatedError } from '../errors';
-import expenseModel from '../models/expense.model';
+import Report from '../models/report.model';
+import moment from 'moment';
 
 export const generateExpenseReport = asyncHandler(async (req, res) => {
-    const { startDate, endDate } = req.body;
+   const { startDate, endDate } = req.body;
 
-    if (!startDate || !endDate ) throw new BadRequestError('Start and End date is required');
+   if (!startDate || !endDate)
+      throw new BadRequestError('Start and End date is required');
 
-    if (endDate < startDate) throw new BadRequestError('endDate cannot be earlier than startDate');
+   if (endDate < startDate)
+      throw new BadRequestError('endDate cannot be earlier than startDate');
 
-    const filteredData = await expenseModel.find({ date: { $gte: startDate, $lte: endDate } }).exec();
+   const startDateq = moment(startDate).startOf('day').toISOString();
+   const endDateq = moment(endDate).endOf('day').toISOString();
 
-    const report = { startDate, endDate, data: filteredData };
+   const report = await Report.find(
+      {
+         user: req.user._id,
+         date: {
+            $gte: startDateq,
+            $lte: endDateq,
+         },
+      },
+      { __v: 0 }
+   ).sort({ date: 'asc' });
 
-    res.status(StatusCodes.OK).json({
-        message: "Report generated sucessfully",
-        report
-    })
-})
+   const reports = {
+      data: report,
+      startDateq,
+      endDateq,
+      length: report.length,
+   };
+
+   res.status(StatusCodes.OK).json({
+      reports,
+   });
+});

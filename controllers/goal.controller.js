@@ -1,7 +1,9 @@
 import asyncHandler from 'express-async-handler';
 import { StatusCodes } from 'http-status-codes';
+import moment from 'moment';
 import { BadRequestError, UnauthenticatedError } from '../errors';
 import Goal from '../models/goal.model';
+import Report from '../models/report.model';
 import User from '../models/user.model';
 import logger from '../utils/winston';
 
@@ -16,11 +18,20 @@ export const getAllGoals = asyncHandler(async (req, res) => {
 export const createGoal = asyncHandler(async (req, res) => {
    const { goalAmount, targetDate, description, creditAmount } = req.body;
 
+   // Check if user balance is greater than targetDate
+   const userFromDb = await User.findById(req.user._id);
+
+   if (creditAmount > Number(userFromDb.balance)) {
+      throw new BadRequestError(
+         'Credit amount cannot be greater than user balance'
+      );
+   }
+
    // create a new goal
    const goal = await new Goal({
       user: req.user._id,
       goalAmount: goalAmount,
-      targetDate: targetDate,
+      targetDate: moment(targetDate).toISOString(),
       description: description,
       savedAmount: +creditAmount,
    }).save();
@@ -29,6 +40,20 @@ export const createGoal = asyncHandler(async (req, res) => {
    const user = await User.findById(req.user._id);
    user.balance -= Number(creditAmount);
    user.save();
+
+   // create new report
+   if (creditAmount) {
+      await new Report({
+         user: req.user._id,
+         reportType: 'Goal Report',
+         date: moment().toISOString(),
+         summaryStatistics: {
+            transactionId: goal._id,
+            amount: creditAmount,
+            type: 'debit',
+         },
+      }).save();
+   }
 
    res.status(StatusCodes.CREATED).json({
       message: 'Goal created successfully',
@@ -74,6 +99,18 @@ export const addSavings = asyncHandler(async (req, res) => {
    const user = await User.findById(req.user._id);
    user.balance -= Number(amount);
    user.save();
+
+   // create new report
+   await new Report({
+      user: req.user._id,
+      reportType: 'Goal Report',
+      date: moment().toISOString(),
+      summaryStatistics: {
+         transactionId: goal._id,
+         amount: amount,
+         type: 'debit',
+      },
+   }).save();
 
    logger.info(
       `User ${req.user._id} debited with ${amount} for savings to goal ${goal._id}`

@@ -4,9 +4,9 @@ import { BadRequestError, UnauthenticatedError } from '../errors';
 import Expense from '../models/expense.model';
 import Budget from '../models/budget.model';
 import User from '../models/user.model';
+import Report from '../models/report.model';
 import logger from '../utils/winston';
-
-// TODO: include previous and current balance after adding expenses
+import moment from 'moment';
 
 // add an expense controller
 export const addExpense = asyncHandler(async (req, res) => {
@@ -29,7 +29,7 @@ export const addExpense = asyncHandler(async (req, res) => {
    //  set date to current date if date is null or undefined
    let newDate;
    if (!date) {
-      newDate = new Date();
+      newDate = moment().toISOString();
    }
 
    // check if budget exists
@@ -59,17 +59,30 @@ export const addExpense = asyncHandler(async (req, res) => {
    }
 
    // create new expense
-   await new Expense({
+   const expense = await new Expense({
       user: req.user._id,
       category,
       amount,
       description,
-      date: date || newDate,
+      date: moment(date).toISOString() || newDate,
    }).save();
 
    //  deduct expense amount from user balance
    const newBalance = user.balance - amount;
    await User.findByIdAndUpdate(req.user._id, { balance: newBalance });
+
+   // create new report
+   await new Report({
+      user: req.user._id,
+      reportType: 'Expense Report',
+      date: moment(expense.date).toISOString(),
+      summaryStatistics: {
+         transactionId: expense._id,
+         amount: expense.amount,
+         type: "debit",
+         category: expense.category,
+      },
+   }).save();
 
    logger.info(`User ${req.user.email} added a new expense`);
 
@@ -109,25 +122,6 @@ export const getExpensesAmount = asyncHandler(async (req, res) => {
    const totalExpensesAmount = expenses.reduce((acc, expense) => {
       return acc + expense.amount;
    }, 0);
-
-   // get the list of categories in expenses to it amount and budget to it spentAmount and sorted to a single array
-   // const expensesByCategory = expenses
-   //    .map((expense) => {
-   //       return {
-   //          category: expense.category,
-   //          amount: expense.amount,
-   //       };
-   //    })
-   //    .concat(
-   //       budget.map((budget) => {
-   //          return {
-   //             category: budget.category,
-   //             amount: budget.spentAmount,
-   //          };
-   //       })
-
-   //       // sort the array by category
-   //    );
 
    // get all expences and budget categories with their amount
    const expensesByCategory = expenses.reduce((acc, expense) => {
